@@ -1,0 +1,27 @@
+{% extends "admin_index.html" %}
+{% block content1 %}
+<form method='post' class='reg-form'>
+        {{ form.hidden_tag() }}
+        <div class='form-row'>
+			<label for='form_login'>Название: </label>
+			{{ form.course_name }}
+            {% for error in form.course_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+          {% endfor %}<br>
+		</div>
+
+		<div class='form-row'>
+			<label for='form_password'>Описание: </label>
+			{{ form.description }}
+            {% for error in form.description.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+          {% endfor %}<br>
+		</div>
+
+		<div class="form-row">
+			<input type="submit" value='Добавить'>
+		</div>
+
+	</form>
+
+{% endblock %}

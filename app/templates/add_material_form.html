@@ -1,0 +1,16 @@
+{% extends "course.html" %}
+{% block add_material %}
+    <form method='post' enctype="multipart/form-data" class='reg-form'>
+        {{ add_material_form.hidden_tag() }}
+        <div class="form_row">
+            {{ add_material_form.file }}
+            {% for error in add_material_form.file.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+        <div class="form_row">
+            <input type="submit" value='Добавить'>
+        </div>
+
+    </form>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <nav>
+        <div id="hideMenu">
+            <a href="/courses">Мои курсы</a>
+            {% if user.role == 1 %}
+            <a href="{{ url_for("progress") }}">Мои результаты</a>
+            {% endif %}
+        </div>
+
+
+    </nav>
+    {% block content1 %}{% endblock %}
+{% endblock %}
+
+

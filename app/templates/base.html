@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BestLearn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logotype.png') }}" type="image/x-icon">
+</head>
+<body>
+
+<div id="wrapper">
+    <div id="content">
+        <header>
+            <div id="logo">
+                <a href="/index" title="To main page">
+                    <img src="{{ url_for('static', filename='img/logotype.png') }}" title="KinoTrend" alt="BestLearn">
+                    <span>BestLearn</span>
+                </a>
+            </div>
+            <div id="about">
+                <p>
+                    {% if user.role == 1 %}
+                        студент
+                    {% elif user.role == 2 %}
+                        преподаватель
+                    {% elif user.role == 3 %}
+                        администратор
+                    {% endif %}
+                    {{ user.name }} {{ user.surname }}
+                </p>
+            </div>
+            <div id="reg_auth">
+                <a href="/logout" title="Выйти с учетной записи">
+                    <div class="btn">
+                        Выйти
+                    </div>
+                </a>
+            </div>
+        </header>
+
+        {% block content %}{% endblock %}
+    </div>
+    <footer>
+{#        <div id="site_name">#}
+{#            <span>#}
+{#                KinoTrend#}
+{#            </span>#}
+{#            - only best movie!#}
+{#        </div>#}
+        <div id="clear">
+        </div>
+{#        <div id="footer_menu">#}
+{#            <a href="#" title="More details about advertising">#}
+{#                Advertising#}
+{#            </a>#}
+{#            <a href="#" title="Support project">#}
+{#                Support project#}
+{#            </a>#}
+{#            <a href="#" title="Send letter">#}
+{#                Feedback#}
+{#            </a>#}
+{#        </div>#}
+        <div id="rights">
+            <a href="">
+                All rights reserved &copy; 2017
+            </a>
+        </div>
+{#        <div id="social">#}
+{#            <a href="#" title="VK">#}
+{#                <i class="fa fa-vk" aria-hidden="true"></i>#}
+{#            </a>#}
+{#            <a href="#" title="FaceBook">#}
+{#                <i class="fa fa-facebook" aria-hidden="true"></i>#}
+{#            </a>#}
+{#            <a href="#" title="Twitter">#}
+{#                <i class="fa fa-twitter" aria-hidden="true"></i>#}
+{#            </a>#}
+{#            <a href="#" title="YouYube">#}
+{#                <i class="fa fa-youtube" aria-hidden="true"></i>#}
+{#            </a>#}
+{#            <a href="#" title="Gougle+">#}
+{#                <i class="fa fa-google-plus" aria-hidden="true"></i>#}
+{#            </a>#}
+{#        </div>#}
+    </footer>
+</div>
+</body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reset.css') }}">
+<link rel="stylesheet" href='{{ url_for('static', filename='css/registration.css') }}'>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+
+</html>

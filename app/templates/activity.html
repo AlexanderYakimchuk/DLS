@@ -1,0 +1,70 @@
+{% extends "index.html" %}
+{% block content1 %}
+    <div class="activity_info">
+        <table>
+            <tr>
+                <td>Задание:</td>
+                <td><a href="{{ url_for("static", filename='files/'+activity[1]+activity[2]) }}">{{ activity[2] }}</a>
+                </td>
+            </tr>
+            <tr>
+            <td>Стоимость:</td>
+
+            <td>{{ activity[3] }}</td>
+        </tr>
+            <tr>
+                <td>Статус:</td>
+                {% if student_activity is none %}
+                    <td>не оценено</td>
+                {% else %}
+                    {% if student_activity[0] %}
+                        <td>оценено</td>
+                    {% else %}
+                        <td>не оценено</td>
+                    {% endif %}
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Файл:</td>
+                {% if student_activity is none %}
+                    <td>Файл не найден</td>
+                {% else %}
+                    <td>
+                        <a href="{{ url_for("static", filename='files/'+user_id+activity_id+student_activity[1]) }}">{{ student_activity[1] }}</a>
+                    </td>
+                {% endif %}
+            </tr>
+        </table>
+
+        <div id="change_answer_button">Изменить ответ</div>
+        <form method='post' enctype="multipart/form-data" class='reg-form' id="change_answer_form">
+            {{ add_material_form.hidden_tag() }}
+            <div class="form_row">
+                {{ add_material_form.file }}
+                {% for error in add_material_form.file.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}<br>
+            </div>
+            <div class="form-row">
+                <input type="submit" value='Отправить'>
+            </div>
+
+        </form>
+        <p>Отклик</p>
+
+        <table>
+            <tr>
+                <td>Оценка:</td>
+                <td>{{ student_activity[0] }}</td>
+            </tr>
+            <tr>
+                <td>Оценил:</td>
+                <td>{{ student_activity[3]+' '+student_activity[4] }}</td>
+            </tr>
+            <tr>
+                <td>Коментарий:</td>
+                <td>{{ student_activity[2] }}</td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block content1 %}
+    {% for course in courses %}
+        <div class="course">
+            <div class="course_name">{{ course[1] }}</div>
+            <div class="course_description"><p>{{ course[2] }}</p></div>
+            <a href="courses/{{ course[0] }}">
+                <div class="course_button">Перейти</div>
+            </a>
+        </div>
+    {% endfor %}
+{% endblock %}

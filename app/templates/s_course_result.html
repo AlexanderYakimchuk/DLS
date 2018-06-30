@@ -1,0 +1,17 @@
+{% extends "index.html" %}
+{% block content1 %}
+    <div class="course_result_menu_for_student">
+        <p>Оценки за курс</p>
+    </div>
+
+    <table align="center" class="student_result">
+        {% for record in result %}
+            <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td>{{ record[2] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

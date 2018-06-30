@@ -1,0 +1,46 @@
+{% extends "index.html" %}
+{% block content1 %}
+    <div class="course_result_menu">
+        <p id="course_result_marks">Оценки за курс</p>
+    </div>
+
+    <table align="center" class="students_result" id="student_marks">
+        <tr>
+            <th>Имя</th>
+            <th>Фамилия</th>
+            <th>Максимальный бал</th>
+            <th>Набраний бал</th>
+            <th>Предполагаемая оценка</th>
+        </tr>
+        {% for record in result %}
+            <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td>{{ record[2] }}</td>
+                <td>{{ record[3] }}</td>
+                <td>{{ record[4] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <div class="course_result_menu">
+        <p id="students_productivity">Продуктивность студентов</p>
+    </div>
+
+    <table align="center" class="students_result" id="student_productivity">
+        <tr>
+            <th>Название работы</th>
+            <th>Наименьшее время выполнения</th>
+            <th>Наибольшее время выполнения</th>
+            <th>Среднее время выполнения</th>
+        </tr>
+        {% for record in productivity %}
+            <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td>{{ record[2] }}</td>
+                <td>{{ record[3] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

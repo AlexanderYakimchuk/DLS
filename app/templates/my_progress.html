@@ -1,0 +1,22 @@
+{% extends "index.html" %}
+{% block content1 %}
+    <div class="course_result_menu_for_student">
+        <p>Оценки за курсы</p>
+    </div>
+    <table align="center" class="student_result">
+        <tr>
+            <th>Курс</th>
+            <th>Набранные баллы</th>
+            <th>Максимальный балл</th>
+            <th>Процент завершения</th>
+        </tr>
+        {% for record in statistic %}
+            <tr>
+                <td>{{ record[0] }}</td>
+                <td>{{ record[1] }}</td>
+                <td>{{ record[2] }}</td>
+                <td>{{ record[3]+'%' }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

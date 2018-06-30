@@ -1,0 +1,92 @@
+{% extends "index.html" %}
+{% block content1 %}
+    <table id="t_activity_info">
+        <tr>
+            <td>Задание:</td>
+
+            <td><a href="{{ url_for("static", filename='files/'+activity[1]+activity[2]) }}">{{ activity[2] }}</a>
+            </td>
+        </tr>
+        <tr>
+            <td>Стоимость:</td>
+
+            <td>{{ activity[3] }}</td>
+        </tr>
+        <tr>
+            <td>Кем добавлено:</td>
+
+            <td>{{ activity[4]+' '+ activity[5] }}</td>
+        </tr>
+        <tr>
+            <td>Когда добавлено:</td>
+
+            <td>{{ activity[6] }}</td>
+        </tr>
+    </table>
+    <div id="student_activity">Активность студентов</div>
+    <table align="center" id="students_marks">
+        <tr>
+
+            <th>Студент</th>
+            <th>Работа</th>
+            <th>Дата добавления</th>
+            <th>Оценка</th>
+            <th>Коментарий</th>
+        </tr>
+        {% for student in students %}
+            <tr>
+                <td>{{ student[0] + " " + student[1] }}</td>
+                {% if student[2] %}
+                    <td>
+                        <a href="{{ url_for("static", filename="files/"+user_id+activity_id+student[2]) }}">{{ student[2] }}</a>
+                    </td>
+                {% else %}
+                    <td>-</td>
+                {% endif %}
+                <td>{{ student[6] }}</td>
+                <td class="mark_field">{{ student[3] }}</td>
+
+                <td>{{ student[4] }}</td>
+                {#                <td><a href="{{ "/t_activity/"+course_id+'/'+activity_id+'/'+student[5] }}"><div id="graduate_button">Оценить</div></a></td>#}
+            </tr>
+        {% endfor %}
+    </table>
+    <form method='post' class='reg-form' id="add_mark_form">
+        {{ add_mark_form.hidden_tag() }}
+        <div class='form-row'>
+            <label for='form_fname'>Студент:
+                {{ add_mark_form.student(list = "students", autocomplete = "off") }}</label>
+
+            <datalist id="students">
+                {% for student in students %}
+                    {% if student[2] %}
+                        <option value="{{ student[0] + " " + student[1] }}">
+                    {% endif %}
+                {% endfor %}
+            </datalist>
+            {% for error in add_mark_form.student.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+        <div class='form-row'>
+            <label for='form_login'>Оценка: </label>
+            {{ add_mark_form.mark }}
+            {% for error in add_mark_form.mark.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class='form-row'>
+            <label for='form_password'>Коментарий: </label>
+            {{ add_mark_form.comment }}
+            {% for error in add_mark_form.comment.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class="form-row">
+            <input type="submit" value='Оценить'>
+        </div>
+
+    </form>
+{% endblock %}

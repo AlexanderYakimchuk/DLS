@@ -1,0 +1,66 @@
+{% extends "admin_index.html" %}
+{% block content1 %}
+    <form method='post' class='reg-form'>
+        {{ form.hidden_tag() }}
+        <div class='form-row'>
+            <label for='form_fname'>Имя: </label>
+            {{ form.name }}
+            {% for error in form.name.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class='form-row'>
+            <label for='form_surname'>Фамилия: </label>
+            {{ form.surname }}
+            {% for error in form.surname.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class='form-row'>
+            <label for='form_email'>Email: </label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class='form-row'>
+            <label for='form_login'>Логин: </label>
+            {{ form.login }}
+            {% for error in form.login.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class='form-row'>
+            <label for='form_password'>Роль: </label>
+            {{ form.role }}
+            {% for error in form.role.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class='form-row'>
+            <label for='form_password'>Пароль: </label>
+            {{ form.password }}
+            {% for error in form.password.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class='form-row'>
+            <label for='form_password'>Повторите пароль: </label>
+            {{ form.confirm }}
+            {% for error in form.confirm.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}<br>
+        </div>
+
+        <div class="form-row">
+            <input type="submit" value='Добавить'>
+        </div>
+
+    </form>
+{% endblock %}
