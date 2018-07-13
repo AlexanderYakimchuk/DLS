@@ -2,43 +2,43 @@
 {% block content1 %}
     <a class="course_menu" id="course_materials_paragraph">Материалы курса</a>
     <div class="course_materials" id="course_materials_list">
-        {% for material in materials_1 %}
-            <a href="{{ url_for('static', filename='files/'+material[0]+material[1]) }}">{{ material[1] }}</a>
+        {% for material in course.materials %}
+            <a href="{{ url_for('static', filename='files/'+material.id|string + material.name) }}">{{ material.name }}</a>
             <br>
         {% endfor %}
         {% if user.role == 2 %}
-            <a href="{{ '/add_material/'+course_id }}">Добавить материал</a>
+            <a href="{{ '/add_material/'+course.id }}">Добавить материал</a>
             {% block add_material %}{% endblock %}
         {% endif %}
     </div>
     <a class="course_menu" id="course_activities_paragraph">Лабораторные работы</a>
     <div class="course_materials" id="course_activities_list">
-        {% for activity in activities %}
+        {% for activity in course.activities %}
             {% if user.role == 1 %}
-            <a href="{{ "/activity/"+activity[0] }}">{{ activity[1] }}</a>
+            <a href="{{ "/activity/"+activity.id|string }}">{{ activity.name }}</a>
             {% elif user.role == 2 %}
-                 <a href="{{ "/t_activity/"+course_id+"/"+activity[0] }}">{{ activity[1] }}</a>
+                 <a href="{{ "/t_activity/"+course.id+"/"+activity.id }}">{{ activity.name }}</a>
             {% endif %}
             <br>
         {% endfor %}
         {% if user.role == 2 %}
-            <a href="{{ '/add_lab/'+course_id }}">Добавить материал</a>
+            <a href="{{ '/add_lab/'+course.id }}">Добавить материал</a>
             {% block add_lab_form %}{% endblock %}
         {% endif %}
 
     </div>
-    {% if user.role == 2 %}
-        <a class="course_menu" id="course_students_paragraph">Набор группы</a>
-        <div class="course_materials" id="course_students_list">
-            {% for student in students_in_course %}
-                <a href="">{{ student[0] }}</a>
-                <br>
-            {% endfor %}
-            <a href="{{ '/add_student/'+course_id }}">Добавить студента</a>
-            {% block add_student %}{% endblock %}
-        </div>
-    {% endif %}
-    <a href="/courses/{{ course_id }}/result">
+{#    {% if user.role == 2 %}#}
+{#        <a class="course_menu" id="course_students_paragraph">Набор группы</a>#}
+{#        <div class="course_materials" id="course_students_list">#}
+{#            {% for student in students_in_course %}#}
+{#                <a href="">{{ student[0] }}</a>#}
+{#                <br>#}
+{#            {% endfor %}#}
+{#            <a href="{{ '/add_student/'+course_id }}">Добавить студента</a>#}
+{#            {% block add_student %}{% endblock %}#}
+{#        </div>#}
+{#    {% endif %}#}
+    <a href="/courses/{{ course.id }}/result">
         <div class="course_button" id="course_result_button">Статистика курса</div>
     </a>
 {% endblock %}

@@ -1,38 +1,42 @@
-from flask import render_template, redirect, request, url_for, sessions, g, flash
-from flask_login import login_user, logout_user, current_user, login_required
-from app import app, db, lm
-from .models import User, Course
-from .forms import RegisterForm, LoginForm, AddCourse, AddUser, AddTeacher, \
-    AddMaterial, AddActivity, AddStudentToCourse, AddMark
+from flask import render_template, redirect, request, g
+from flask_login import logout_user, login_user, current_user, login_required
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app import app, lm
+from app import db
 from .db_manager import DBManager
-import werkzeug
+from .forms import SignupForm, LoginForm, AddCourse, AddUser, AddTeacher, \
+    AddMaterial, AddActivity, AddStudentToCourse, AddMark
+from .models import User_, Course_, User, Course
 
 
-@app.before_request
-def before_request():
-    g.user = current_user
+@lm.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
+@login_required
 def index():
-    if g.user is None or not g.user.is_authenticated:
-        return redirect('/login')
-    if g.user.role == 1:
-        return render_template('index.html', user=g.user)
-    if g.user.role == 2:
-        return render_template('index.html', user=g.user)
-    if g.user.role == 3:
-        return render_template('admin_index.html', user=g.user)
+    if current_user.role == 1:
+        return render_template('index.html', user=current_user)
+    if current_user.role == 2:
+        return render_template('index.html', user=current_user)
+    if current_user.role == 3:
+        return render_template('admin_index.html', user=current_user)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if form.validate_on_submit():
-        login_user(User.get_user(form.login.data))
-        return redirect('/index')
-    return render_template('login.html', form=form)
+        user = User.query.filter_by(login=form.login.data).first()
+        if check_password_hash(user.password, form.password.data):
+            login_user(user)
+            return redirect('/')
+    return render_template("login.html",
+                           form=form)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -41,27 +45,24 @@ def logout():
     return redirect('/login')
 
 
-@app.route('/registration', methods=['GET', 'POST'])
-def registration():
-    form = RegisterForm(request.form)
+@app.route('/signup', methods=["GET", "POST"])
+def signup():
+    form = SignupForm()
     if form.validate_on_submit():
-        user = User(
+        hashed_password = generate_password_hash(password=form.password.data, method="sha256")
+        new_user = User(
             name=form.name.data,
             surname=form.surname.data,
             email=form.email.data,
             login=form.login.data,
-            password=form.password.data
+            password=hashed_password
         )
-        DBManager.add_user(user)
-        login_user(user)
-        return redirect("/index")
-
-    return render_template('registration.html', form=form)
-
-
-@lm.user_loader
-def load_user(login):
-    return User.get_user(login)
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        return redirect("/")
+    return render_template("signup.html",
+                           form=form)
 
 
 @app.route("/statistic", methods=['GET', 'POST'])
@@ -81,17 +82,18 @@ def statistic():
 
 
 @app.route("/courses", methods=['GET', 'POST'])
+@login_required
 def course():
-    if g.user and g.user.is_authenticated:
-        if g.user.role == 3:
-            return render_template("admin_course.html", user=g.user)
-        if g.user.role == 2:
-            courses = DBManager.get_courses_for_user(g.user.id)
-            return render_template("teacher_courses.html", user=g.user, courses=courses)
-        if g.user.role == 1:
-            courses = DBManager.get_courses_for_user(g.user.id)
-            return render_template("teacher_courses.html", user=g.user, courses=courses)
-    return redirect("/login")
+    if current_user.role == 3:
+        return render_template("admin_course.html", user=current_user)
+    if current_user.role == 2:
+        return render_template("teacher_courses.html",
+                               user=current_user,
+                               courses=current_user.courses)
+    if current_user.role == 1:
+        return render_template("teacher_courses.html",
+                               user=current_user,
+                               courses=current_user.courses)
 
 
 @app.route("/course/add", methods=['GET', 'POST'])
@@ -100,7 +102,7 @@ def course_add():
         if g.user.role == 3:
             form = AddCourse()
             if form.validate_on_submit():
-                course = Course(
+                course = Course_(
                     course_name=form.course_name.data,
                     description=form.description.data
                 )
@@ -115,7 +117,7 @@ def add_user():
     if g.user and g.user.is_authenticated and g.user.role == 3:
         form = AddUser(request.form)
         if form.validate_on_submit():
-            user = User(
+            user = User_(
                 name=form.name.data,
                 surname=form.surname.data,
                 email=form.email.data,
@@ -144,25 +146,18 @@ def add_teacher():
 
 @app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
 def concrete_course(course_id):
-    if g.user is not None and g.user.is_authenticated:
-        materials_1 = DBManager.get_materials(course_id, 1)
-        activities = DBManager.get_activities(course_id)
-        add_material_form = AddMaterial()
-        add_lab_form = AddActivity()
-        if g.user.role == 1:
-            return render_template('course.html', user=g.user,
-                                   materials_1=materials_1,
-                                   activities=activities,
-                                   course_id=str(course_id))
-        if g.user.role == 2:
-            students_in_course = DBManager.get_students_in_course(course_id)
-            return render_template('course.html', user=g.user,
-                                   materials_1=materials_1,
-                                   activities=activities,
-                                   students_in_course=students_in_course,
-                                   course_id=str(course_id)
-                                   )
-    return redirect("/login")
+    if current_user.role == 1:
+        return render_template('course.html', user=current_user,
+                               course=Course.query.get(course_id))
+    # if current_user.role == 2:
+    #     students_in_course = DBManager.get_students_in_course(course_id)
+    #     return render_template('course.html', user=current_user,
+    #                            materials_1=materials_1,
+    #                            activities=activities,
+    #                            students_in_course=students_in_course,
+    #                            course_id=str(course_id)
+    #                            )
+
 
 
 @app.route('/add_material/<int:course_id>', methods=['GET', 'POST'])

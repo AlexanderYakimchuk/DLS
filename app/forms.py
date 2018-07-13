@@ -1,74 +1,37 @@
 from flask_wtf import Form, FlaskForm
-from wtforms import StringField, PasswordField, SelectField, FileField, IntegerField, TextAreaField
 from flask_wtf.file import FileRequired
+from wtforms import StringField, PasswordField, SelectField, FileField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
-from app import db
+
+from app import db_
+from app.models import User
 
 
-class LoginForm(Form):
+class LoginForm(FlaskForm):
+    login = StringField('login', validators=[DataRequired(), Length(min=5, max=50)])
+    password = PasswordField('password', validators=[DataRequired(), Length(min=6, max=30)])
+
+
+class SignupForm(FlaskForm):
+    name = StringField('name', validators=[DataRequired(), Length(max=50)])
+    surname = StringField('surname', validators=[DataRequired(), Length(max=50)])
+    email = StringField('email', validators=[DataRequired(), Email(message="bad e-mail")])
     login = StringField('login', validators=[DataRequired(), Length(min=5, max=30)])
-    password = PasswordField('password', validators=[DataRequired()])
+    password = PasswordField('password', validators=[DataRequired(), Length(min=6, max=20)])
+    confirm = PasswordField('confirm', validators=[DataRequired(), Length(min=6, max=20)])
 
     def validate(self):
-        initial_validation = super(LoginForm, self).validate()
+        initial_validation = super(SignupForm, self).validate()
         if not initial_validation:
             return False
-        cursor = db.cursor()
-        cursor.execute("""SELECT user_id FROM dls.logins WHERE login= %s""", [self.login.data])
-        id = cursor.fetchone()
-
-        if not id:
-            self.login.errors.append("There is no user with this login")
+        if self.password.data != self.confirm.data:
+            self.confirm.errors.append("Confirm must be the same")
             return False
-
-        cursor.execute("""SELECT password FROM dls.passwords WHERE user_id= %s""", [id])
-        password = cursor.fetchone()
-        cursor.close()
-        if password[0] != str(self.password.data):
-            self.password.errors.append("Wrong password")
+        if User.query.filter_by(login=str(self.login)).first():
+            self.login.errors.append("User with the same login is already exist")
             return False
-        return True
-
-
-class RegisterForm(Form):
-    name = StringField(
-        'name',
-        validators=[DataRequired()])
-    surname = StringField(
-        'surname',
-        validators=[DataRequired()])
-    email = StringField(
-        'email',
-        validators=[DataRequired(), Email(message=None), Length(min=6, max=255)])
-    login = StringField(
-        'login',
-        validators=[DataRequired(), Length(min=5, max=30)])
-    password = PasswordField(
-        'password',
-        validators=[DataRequired(), Length(min=6, max=255)]
-    )
-    confirm = PasswordField(
-        'Repeat password',
-        validators=[
-            DataRequired(),
-            EqualTo('password', message='Passwords must match.')
-        ]
-    )
-
-    def validate(self):
-        initial_validation = super(RegisterForm, self).validate()
-        if not initial_validation:
-            return False
-        cursor = db.cursor()
-        cursor.execute("""SELECT * FROM dls.logins WHERE login= %s""", [self.login.data])
-        logins = cursor.fetchone()
-        cursor.execute("""SELECT * FROM dls.users WHERE "e-mail"= %s""", [self.email.data])
-        emails = cursor.fetchone()
-        if logins:
-            self.login.errors.append("login already registered")
-            return False
-        if emails:
-            self.email.errors.append("email already registered")
+        if User.query.filter_by(email=str(self.email)).first():
+            self.email.errors.append("You already have account with this email")
             return False
         return True
 
@@ -112,7 +75,7 @@ class AddUser(Form):
         initial_validation = super(AddUser, self).validate()
         if not initial_validation:
             return False
-        cursor = db.cursor()
+        cursor = db_.cursor()
         cursor.execute("""SELECT * FROM dls.logins WHERE login= %s""", [self.login.data])
         logins = cursor.fetchone()
         cursor.execute("""SELECT * FROM dls.users WHERE "e-mail"= %s""", [self.email.data])
