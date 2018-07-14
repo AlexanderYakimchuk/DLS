@@ -19,8 +19,9 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(50), nullable=False)
     surname = db.Column(db.String(50), nullable=False)
     role = db.Column(db.Integer(), nullable=False, default=1)
-    courses = db.relationship('Course', secondary=user_courses,
-                              backref=db.backref('users'))
+    courses = db.relationship('Course',
+                              secondary=user_courses,
+                              backref='users')
 
     def __repr__(self):
         return self.login
@@ -32,6 +33,13 @@ class Course(db.Model):
     description = db.Column(db.Text, nullable=False)
     materials = db.relationship('Material', backref='course')
     activities = db.relationship('Activity', backref='course')
+
+    students = db.relationship('User',
+                               secondary=user_courses,
+                               secondaryjoin='and_(User.id == user_courses.c.user_id, User.role == 1)')
+    teachers = db.relationship('User',
+                               secondary=user_courses,
+                               secondaryjoin='and_(User.id == user_courses.c.user_id, User.role == 2)')
 
     def __repr__(self):
         return self.course_name

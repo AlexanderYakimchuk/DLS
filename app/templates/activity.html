@@ -4,20 +4,20 @@
         <table>
             <tr>
                 <td>Задание:</td>
-                <td><a href="{{ url_for("static", filename='files/'+activity[1]+activity[2]) }}">{{ activity[2] }}</a>
+                <td><a href="{{ url_for("static", filename=activity.reference) }}">{{ activity.name }}</a>
                 </td>
             </tr>
             <tr>
             <td>Стоимость:</td>
 
-            <td>{{ activity[3] }}</td>
+            <td>{{ activity.cost }}</td>
         </tr>
             <tr>
                 <td>Статус:</td>
-                {% if student_activity is none %}
+                {% if student_work is none %}
                     <td>не оценено</td>
                 {% else %}
-                    {% if student_activity[0] %}
+                    {% if student_work.mark %}
                         <td>оценено</td>
                     {% else %}
                         <td>не оценено</td>
@@ -26,11 +26,11 @@
             </tr>
             <tr>
                 <td>Файл:</td>
-                {% if student_activity is none %}
+                {% if student_work is none %}
                     <td>Файл не найден</td>
                 {% else %}
                     <td>
-                        <a href="{{ url_for("static", filename='files/'+user_id+activity_id+student_activity[1]) }}">{{ student_activity[1] }}</a>
+                        <a href="{{ url_for("static", filename=student_work.reference) }}">{{ student_work.name }}</a>
                     </td>
                 {% endif %}
             </tr>
@@ -55,15 +55,19 @@
         <table>
             <tr>
                 <td>Оценка:</td>
-                <td>{{ student_activity[0] }}</td>
+                {% if student_work.mark is not none %}
+                    <td>{{ student_work.mark }}</td>
+                {% endif %}
             </tr>
             <tr>
                 <td>Оценил:</td>
-                <td>{{ student_activity[3]+' '+student_activity[4] }}</td>
+                <td></td>
             </tr>
             <tr>
                 <td>Коментарий:</td>
-                <td>{{ student_activity[2] }}</td>
+                {% if student_work.comment is not none %}
+                    <td>{{ student_work.comment }}</td>
+                {% endif %}
             </tr>
         </table>
     </div>

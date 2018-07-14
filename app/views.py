@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, g
+from flask import render_template, redirect, request, g, url_for
 from flask_login import logout_user, login_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -7,7 +7,7 @@ from app import db
 from .db_manager import DBManager
 from .forms import SignupForm, LoginForm, AddCourse, AddUser, AddTeacher, \
     AddMaterial, AddActivity, AddStudentToCourse, AddMark
-from .models import User_, Course_, User, Course
+from .models import User_, Course_, User, Course, Activity, StudentWork
 
 
 @lm.user_loader
@@ -86,14 +86,10 @@ def statistic():
 def course():
     if current_user.role == 3:
         return render_template("admin_course.html", user=current_user)
-    if current_user.role == 2:
-        return render_template("teacher_courses.html",
-                               user=current_user,
-                               courses=current_user.courses)
-    if current_user.role == 1:
-        return render_template("teacher_courses.html",
-                               user=current_user,
-                               courses=current_user.courses)
+
+    return render_template("course_list.html",
+                           user=current_user,
+                           courses=current_user.courses)
 
 
 @app.route("/course/add", methods=['GET', 'POST'])
@@ -149,15 +145,10 @@ def concrete_course(course_id):
     if current_user.role == 1:
         return render_template('course.html', user=current_user,
                                course=Course.query.get(course_id))
-    # if current_user.role == 2:
-    #     students_in_course = DBManager.get_students_in_course(course_id)
-    #     return render_template('course.html', user=current_user,
-    #                            materials_1=materials_1,
-    #                            activities=activities,
-    #                            students_in_course=students_in_course,
-    #                            course_id=str(course_id)
-    #                            )
-
+    if current_user.role == 2:
+        return render_template('course.html',
+                               user=current_user,
+                               course=Course.query.get(course_id))
 
 
 @app.route('/add_material/<int:course_id>', methods=['GET', 'POST'])
@@ -232,24 +223,27 @@ def add_student(course_id):
 
 
 @app.route('/activity/<int:activity_id>', methods=['GET', 'POST'])
+@login_required
 def activity(activity_id):
-    if g.user is not None and g.user.is_authenticated:
-        activity = DBManager.get_activity(activity_id)
-        add_material_form = AddMaterial()
-        student_activity = DBManager.get_activity_for_student(g.user.id, activity_id)
-        if add_material_form.validate_on_submit():
-            filename = add_material_form.file.data.filename
-            DBManager.add_student_to_activity(g.user.id, activity_id, filename)
-            add_material_form.file.data.save('app/static/files/' + str(g.user.id) + str(activity_id) + filename)
-        return render_template('activity.html',
-                               user=g.user,
-                               activity_id=str(activity_id),
-                               user_id=str(g.user.id),
-                               activity=activity,
-                               student_activity=student_activity,
-                               add_material_form=add_material_form
-                               )
-    return redirect("/login")
+    activity = Activity.query.get(activity_id)
+    add_material_form = AddMaterial()
+    student_work = StudentWork.query.get((activity_id, current_user.id))
+    # student_activity = DBManager.get_activity_for_student(g.user.id, activity_id)
+    if add_material_form.validate_on_submit():
+        filename = add_material_form.file.data.reference
+        DBManager.add_student_to_activity(g.user.id, activity_id, filename)
+        student_work = StudentWork(name=filename,
+                                   reference='files/' + str(current_user.id) + str(activity_id) + filename,
+                                   student=current_user)
+        activity.students.append(student_work)
+        db.session.commit()
+        add_material_form.file.data.save(url_for('static', filename=student_work.reference))
+    return render_template('activity.html',
+                           user=current_user,
+                           activity=activity,
+                           student_work=student_work,
+                           add_material_form=add_material_form
+                           )
 
 
 @app.route('/t_activity/<int:course_id>/<int:activity_id>', methods=['GET', 'POST'])

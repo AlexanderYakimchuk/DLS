@@ -7,7 +7,7 @@
             <br>
         {% endfor %}
         {% if user.role == 2 %}
-            <a href="{{ '/add_material/'+course.id }}">Добавить материал</a>
+            <a href="{{ '/add_material/'+course.id|string }}">Добавить материал</a>
             {% block add_material %}{% endblock %}
         {% endif %}
     </div>
@@ -17,27 +17,27 @@
             {% if user.role == 1 %}
             <a href="{{ "/activity/"+activity.id|string }}">{{ activity.name }}</a>
             {% elif user.role == 2 %}
-                 <a href="{{ "/t_activity/"+course.id+"/"+activity.id }}">{{ activity.name }}</a>
+                 <a href="{{ "/t_activity/" + course.id|string + "/"+activity.id|string }}">{{ activity.name }}</a>
             {% endif %}
             <br>
         {% endfor %}
         {% if user.role == 2 %}
-            <a href="{{ '/add_lab/'+course.id }}">Добавить материал</a>
+            <a href="{{ '/add_lab/'+course.id|string }}">Добавить лабораторную</a>
             {% block add_lab_form %}{% endblock %}
         {% endif %}
 
     </div>
-{#    {% if user.role == 2 %}#}
-{#        <a class="course_menu" id="course_students_paragraph">Набор группы</a>#}
-{#        <div class="course_materials" id="course_students_list">#}
-{#            {% for student in students_in_course %}#}
-{#                <a href="">{{ student[0] }}</a>#}
-{#                <br>#}
-{#            {% endfor %}#}
-{#            <a href="{{ '/add_student/'+course_id }}">Добавить студента</a>#}
-{#            {% block add_student %}{% endblock %}#}
-{#        </div>#}
-{#    {% endif %}#}
+    {% if user.role == 2 %}
+        <a class="course_menu" id="course_students_paragraph">Набор группы</a>
+        <div class="course_materials" id="course_students_list">
+            {% for student in course.students %}
+                <a href="">{{ student.name + ' ' + student.surname }}</a>
+                <br>
+            {% endfor %}
+            <a href="{{ '/add_student/'+course.id|string }}">Добавить студента</a>
+            {% block add_student %}{% endblock %}
+        </div>
+    {% endif %}
     <a href="/courses/{{ course.id }}/result">
         <div class="course_button" id="course_result_button">Статистика курса</div>
     </a>
