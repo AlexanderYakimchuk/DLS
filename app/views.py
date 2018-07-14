@@ -1,3 +1,5 @@
+import os
+
 from flask import render_template, redirect, request, g, url_for
 from flask_login import logout_user, login_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -228,16 +230,16 @@ def activity(activity_id):
     activity = Activity.query.get(activity_id)
     add_material_form = AddMaterial()
     student_work = StudentWork.query.get((activity_id, current_user.id))
-    # student_activity = DBManager.get_activity_for_student(g.user.id, activity_id)
     if add_material_form.validate_on_submit():
-        filename = add_material_form.file.data.reference
-        DBManager.add_student_to_activity(g.user.id, activity_id, filename)
+        filename = add_material_form.file.data.filename
         student_work = StudentWork(name=filename,
-                                   reference='files/' + str(current_user.id) + str(activity_id) + filename,
-                                   student=current_user)
-        activity.students.append(student_work)
+                                   reference='student_labs/' + str(current_user.id) + str(activity_id) + filename)
+        student_work.student = current_user
+        student_work.activity = activity
+        # activity.students.append(student_work)
         db.session.commit()
-        add_material_form.file.data.save(url_for('static', filename=student_work.reference))
+
+        add_material_form.file.data.save(os.path.join(app.config['UPLOAD_FOLDER'], student_work.reference))
     return render_template('activity.html',
                            user=current_user,
                            activity=activity,
