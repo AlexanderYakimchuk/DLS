@@ -1,15 +1,15 @@
 import os
 
-from flask import render_template, redirect, request, g
+from flask import render_template, redirect, request
 from flask_login import logout_user, login_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import app, lm
 from app import db
-from .db_manager import DBManager
 from .forms import SignupForm, LoginForm, AddCourse, AddUser, AddTeacher, \
     AddMaterial, AddActivity, AddStudentToCourse, AddMark
-from .models import User, Course, Activity, StudentWork, Material, get_all_students, get_students_in_course
+from .models import User, Course, Activity, StudentWork, Material, get_all_students, get_students_in_course, \
+    get_student_results
 
 
 @lm.user_loader
@@ -67,20 +67,20 @@ def signup():
                            form=form)
 
 
-@app.route("/statistic", methods=['GET', 'POST'])
-def statistic():
-    if g.user is not None and g.user.is_authenticated:
-        if g.user.role == 3:
-            teacher_popularity = DBManager.get_teacher_popularity()
-            courses_statistic = DBManager.get_courses_statistic()
-            courses_popularity = DBManager.get_courses_popularity()
-            return render_template('admin_statistic.html',
-                                   user=g.user,
-                                   teacher_popularity=teacher_popularity,
-                                   courses_statistic=courses_statistic,
-                                   courses_popularity=courses_popularity)
-
-    redirect('/login')
+# @app.route("/statistic", methods=['GET', 'POST'])
+# def statistic():
+#     if g.user is not None and g.user.is_authenticated:
+#         if g.user.role == 3:
+#             teacher_popularity = DBManager.get_teacher_popularity()
+#             courses_statistic = DBManager.get_courses_statistic()
+#             courses_popularity = DBManager.get_courses_popularity()
+#             return render_template('admin_statistic.html',
+#                                    user=g.user,
+#                                    teacher_popularity=teacher_popularity,
+#                                    courses_statistic=courses_statistic,
+#                                    courses_popularity=courses_popularity)
+#
+#     redirect('/login')
 
 
 @app.route("/courses", methods=['GET', 'POST'])
@@ -278,31 +278,31 @@ def t_activity(course_id, activity_id):
 
 @app.route('/courses/<int:course_id>/result', methods=['GET', 'POST'])
 def concrete_course_result(course_id):
-    if g.user is not None and g.user.is_authenticated:
-
-        if g.user.role == 1:
-            result = DBManager().get_course_result_for_student(course_id, g.user.id)
-            return render_template('s_course_result.html', user=g.user,
-                                   course_id=str(course_id),
-                                   result=result
-                                   )
-        if g.user.role == 2:
-            course_result = DBManager.get_course_result(course_id)
-            productivity = DBManager.get_course_productivity(course_id)
-            return render_template('t_course_result.html', user=g.user,
-                                   course_id=str(course_id),
-                                   result=course_result,
-                                   productivity=productivity
-                                   )
-    return redirect("/login")
+    pass
+    # if g.user is not None and g.user.is_authenticated:
+    #
+    #     if g.user.role == 1:
+    #         result = DBManager().get_course_result_for_student(course_id, g.user.id)
+    #         return render_template('s_course_result.html', user=g.user,
+    #                                course_id=str(course_id),
+    #                                result=result
+    #                                )
+    #     if g.user.role == 2:
+    #         course_result = DBManager.get_course_result(course_id)
+    #         productivity = DBManager.get_course_productivity(course_id)
+    #         return render_template('t_course_result.html', user=g.user,
+    #                                course_id=str(course_id),
+    #                                result=course_result,
+    #                                productivity=productivity
+    #                                )
+    # return redirect("/login")
 
 
 @app.route('/my_progress', methods=['GET', 'POST'])
+@login_required
 def progress():
-    if g.user is not None and g.user.is_authenticated:
-        my_statistic = DBManager.get_courses_statistic_for_student(g.user.id)
-        return render_template('my_progress.html',
-                               user=g.user,
-                               statistic=my_statistic)
+    my_statistic = get_student_results(current_user.id)
+    return render_template('my_progress.html',
+                           user=current_user,
+                           statistic=my_statistic)
 
-    return redirect("/login")

@@ -4,7 +4,7 @@ from wtforms import StringField, PasswordField, SelectField, FileField, IntegerF
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
-from app.models import User, get_teachers, get_courses, get_all_students
+from app.models import User, get_teachers, get_courses
 
 
 class LoginForm(FlaskForm):
@@ -86,9 +86,6 @@ class AddUser(Form):
         return True
 
 
-# class AddTeacher(Form):
-#     course_name = StringField('course', validators=[DataRequired()])
-#     teacher = StringField('teacher', validators=[DataRequired()])
 
 class AddTeacher(Form):
     course = QuerySelectField('course', query_factory=get_courses, get_label='course_name', allow_blank=False)

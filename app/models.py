@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from flask_login import UserMixin
+from sqlalchemy import func
 
 from app import db
 from app import db_
@@ -47,6 +48,17 @@ def get_all_students(course_id):
 def get_students_in_course(course_id):
     return lambda: User.query.filter(User.courses.any(Course.id == course_id), User.role == 1).order_by(User.surname,
                                                                                                         User.name)
+
+
+def get_student_results(student_id):
+    query_result = db.session.query(func.sum(StudentWork.mark), func.sum(Activity.cost), Course.course_name
+                            ).join(Activity, StudentWork.activity
+                                   ).join(User, StudentWork.student
+                                          ).join(Course, User.courses
+                                                 ).group_by(Course.id, User.id
+                                                            ).filter(User.id == student_id).all()
+    query_labels = ['student_rating', 'max_rating', 'course']
+    return list(map(lambda x: dict(zip(query_labels, x)), query_result))
 
 
 class Course(db.Model):

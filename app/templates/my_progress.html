@@ -12,10 +12,10 @@
         </tr>
         {% for record in statistic %}
             <tr>
-                <td>{{ record[0] }}</td>
-                <td>{{ record[1] }}</td>
-                <td>{{ record[2] }}</td>
-                <td>{{ record[3]+'%' }}</td>
+                <td>{{ record['course'] }}</td>
+                <td>{{ record['student_rating'] }}</td>
+                <td>{{ record['max_rating'] }}</td>
+                <td>{{ ((record['student_rating'] * 1000 / record['max_rating'])|int / 10)|string + '%' }}</td>
             </tr>
         {% endfor %}
     </table>

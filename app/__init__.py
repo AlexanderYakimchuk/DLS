@@ -21,3 +21,7 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 from app import views
+
+
+# q = db.session.query(func.sum(StudentWork.mark), func.sum(Activity.cost), User, Course).join(Activity, StudentWork.activity).join(User, StudentWork.student).join(Course, User.courses).group_by(Course.id, User.id).filter(User.id == 2).all()
+
