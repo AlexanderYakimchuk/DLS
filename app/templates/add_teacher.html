@@ -4,27 +4,15 @@
         {{ form.hidden_tag() }}
         <div class='form-row'>
             <label for='form_fname'>Курс:
-            {{ form.course_name(list = "courses", autocomplete = "off") }}</label>
-
-            <datalist id="courses">
-                {% for course in courses %}
-                    <option value="{{ course[0] }}">
-                {% endfor %}
-            </datalist>
-            {% for error in form.course_name.errors %}
+                {{ form.course}}</label>
+            {% for error in form.course.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}<br>
         </div>
 
         <div class='form-row'>
-            <label for='form_fname'>Преподаватель:
-            {{ form.teacher(list = "teachers", autocomplete = "off") }}</label>
-
-            <datalist id="teachers">
-                {% for teacher in teachers %}
-                    <option value="{{ teacher[0] }}">
-                {% endfor %}
-            </datalist>
+            <label for='form_fname'>Преподаватель:</label>
+                {{ form.teacher }}
             {% for error in form.teacher.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}<br>

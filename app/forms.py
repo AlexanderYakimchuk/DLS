@@ -1,10 +1,10 @@
 from flask_wtf import Form, FlaskForm
 from flask_wtf.file import FileRequired
 from wtforms import StringField, PasswordField, SelectField, FileField, IntegerField, TextAreaField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
-from app import db_
-from app.models import User
+from app.models import User, get_teachers, get_courses, get_all_students
 
 
 class LoginForm(FlaskForm):
@@ -75,23 +75,24 @@ class AddUser(Form):
         initial_validation = super(AddUser, self).validate()
         if not initial_validation:
             return False
-        cursor = db_.cursor()
-        cursor.execute("""SELECT * FROM dls.logins WHERE login= %s""", [self.login.data])
-        logins = cursor.fetchone()
-        cursor.execute("""SELECT * FROM dls.users WHERE "e-mail"= %s""", [self.email.data])
-        emails = cursor.fetchone()
-        if logins:
+        login = User.query.filter_by(login=str(self.login)).first()
+        email = User.query.filter_by(email=str(self.email)).first()
+        if login:
             self.login.errors.append("login already registered")
             return False
-        if emails:
+        if email:
             self.email.errors.append("email already registered")
             return False
         return True
 
 
+# class AddTeacher(Form):
+#     course_name = StringField('course', validators=[DataRequired()])
+#     teacher = StringField('teacher', validators=[DataRequired()])
+
 class AddTeacher(Form):
-    course_name = StringField('course', validators=[DataRequired()])
-    teacher = StringField('teacher', validators=[DataRequired()])
+    course = QuerySelectField('course', query_factory=get_courses, get_label='course_name', allow_blank=False)
+    teacher = QuerySelectField('teacher', query_factory=get_teachers, allow_blank=False)
 
 
 class AddMaterial(Form):
@@ -114,10 +115,10 @@ class AddActivity(Form):
 
 
 class AddStudentToCourse(Form):
-    student = StringField('teacher', validators=[DataRequired()])
+    student = QuerySelectField('student', allow_blank=False)
 
 
 class AddMark(Form):
-    student = StringField(validators=[DataRequired()])
+    student = QuerySelectField('student')
     mark = IntegerField(validators=[DataRequired()])
     comment = TextAreaField()

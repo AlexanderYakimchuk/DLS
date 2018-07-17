@@ -24,7 +24,29 @@ class User(db.Model, UserMixin):
                               backref='users')
 
     def __repr__(self):
-        return self.login
+        return self.name + ' ' + self.surname
+
+
+def get_teachers():
+    return User.query.filter_by(role=2).order_by(User.surname, User.name)
+
+
+def get_courses():
+    return Course.query.order_by(Course.course_name)
+
+
+def get_all_students(course_id):
+    """
+    return all students except students in course with id == course_id
+
+    """
+    return lambda: User.query.filter(~User.courses.any(Course.id == course_id), User.role == 1).order_by(User.surname,
+                                                                                                         User.name)
+
+
+def get_students_in_course(course_id):
+    return lambda: User.query.filter(User.courses.any(Course.id == course_id), User.role == 1).order_by(User.surname,
+                                                                                                        User.name)
 
 
 class Course(db.Model):
@@ -56,6 +78,7 @@ class Activity(db.Model):
     cost = db.Column(db.Float, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     reference = db.Column(db.String, nullable=False)
+    added_date = db.Column(db.Date, default=datetime.now())
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
 
 

@@ -4,14 +4,10 @@
         {{ add_student_form.hidden_tag() }}
 
         <div class='form-row'>
-            <label for='form_fname'>Студент:
-            {{ add_student_form.student(list = "students", autocomplete = "off") }}</label>
+            <label for='form_fname'>Студент:</label>
+            {{ add_student_form.student }}
 
-            <datalist id="students">
-                {% for student in all_students %}
-                    <option value="{{ student[0] }}">
-                {% endfor %}
-            </datalist>
+
             {% for error in add_student_form.student.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}<br>

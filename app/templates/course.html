@@ -3,7 +3,7 @@
     <a class="course_menu" id="course_materials_paragraph">Материалы курса</a>
     <div class="course_materials" id="course_materials_list">
         {% for material in course.materials %}
-            <a href="{{ url_for('static', filename='files/'+material.id|string + material.name) }}">{{ material.name }}</a>
+            <a href="{{ url_for('static', filename=material.reference) }}">{{ material.name }}</a>
             <br>
         {% endfor %}
         {% if user.role == 2 %}
