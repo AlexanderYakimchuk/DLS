@@ -9,7 +9,7 @@ from app import db
 from .forms import SignupForm, LoginForm, AddCourse, AddUser, AddTeacher, \
     AddMaterial, AddActivity, AddStudentToCourse, AddMark
 from .models import User, Course, Activity, StudentWork, Material, get_all_students, get_students_in_course, \
-    get_student_results
+    get_student_results, get_student_result_in_course, get_course_result
 
 
 @lm.user_loader
@@ -277,25 +277,23 @@ def t_activity(course_id, activity_id):
 
 
 @app.route('/courses/<int:course_id>/result', methods=['GET', 'POST'])
+@login_required
 def concrete_course_result(course_id):
-    pass
-    # if g.user is not None and g.user.is_authenticated:
-    #
-    #     if g.user.role == 1:
-    #         result = DBManager().get_course_result_for_student(course_id, g.user.id)
-    #         return render_template('s_course_result.html', user=g.user,
-    #                                course_id=str(course_id),
-    #                                result=result
-    #                                )
-    #     if g.user.role == 2:
-    #         course_result = DBManager.get_course_result(course_id)
-    #         productivity = DBManager.get_course_productivity(course_id)
-    #         return render_template('t_course_result.html', user=g.user,
-    #                                course_id=str(course_id),
-    #                                result=course_result,
-    #                                productivity=productivity
-    #                                )
-    # return redirect("/login")
+    if current_user.role == 1:
+        result = get_student_result_in_course(current_user.id, course_id)
+        return render_template('s_course_result.html',
+                               user=current_user,
+                               course=Course.query.get(course_id),
+                               result=result
+                               )
+    if current_user.role == 2:
+        course_result = get_course_result(course_id)
+
+        return render_template('t_course_result.html',
+                               user=current_user,
+                               course=Course.query.get(course_id),
+                               result=course_result
+                               )
 
 
 @app.route('/my_progress', methods=['GET', 'POST'])
@@ -305,4 +303,3 @@ def progress():
     return render_template('my_progress.html',
                            user=current_user,
                            statistic=my_statistic)
-

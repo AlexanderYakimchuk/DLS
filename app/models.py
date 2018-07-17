@@ -52,13 +52,62 @@ def get_students_in_course(course_id):
 
 def get_student_results(student_id):
     query_result = db.session.query(func.sum(StudentWork.mark), func.sum(Activity.cost), Course.course_name
-                            ).join(Activity, StudentWork.activity
-                                   ).join(User, StudentWork.student
-                                          ).join(Course, User.courses
-                                                 ).group_by(Course.id, User.id
-                                                            ).filter(User.id == student_id).all()
+                                    ).join(Activity, StudentWork.activity
+                                           ).join(User, StudentWork.student
+                                                  ).join(Course, User.courses
+                                                         ).group_by(Course.id, User.id
+                                                                    ).filter(User.id == student_id
+                                                                             ).all()
     query_labels = ['student_rating', 'max_rating', 'course']
     return list(map(lambda x: dict(zip(query_labels, x)), query_result))
+
+
+def get_student_result_in_course(student_id, course_id):
+    query_result = db.session.query(StudentWork.mark, Activity.cost, Activity.name
+                                    ).join(Activity, StudentWork.activity
+                                           ).filter(StudentWork.student_id == student_id,
+                                                    Activity.course_id == course_id
+                                                    ).all()
+    query_labels = ['mark', 'cost', 'activity_name']
+    return list(map(lambda x: dict(zip(query_labels, x)), query_result))
+
+
+def get_reasonable_mark(percent):
+    if percent >= 95:
+        mark = 'A'
+    elif percent >= 85:
+        mark = 'B'
+    elif percent >= 75:
+        mark = 'C'
+    elif percent >= 65:
+        mark = 'D'
+    elif percent >= 60:
+        mark = 'E'
+    else:
+        mark = 'F'
+
+    return mark
+
+
+def get_course_result(course_id):
+    query_result = db.session.query(func.sum(StudentWork.mark), func.sum(Activity.cost), User.name, User.surname,
+                                    Course.course_name
+                                    ).join(Activity, StudentWork.activity
+                                           ).join(User, StudentWork.student
+                                                  ).join(Course, User.courses
+                                                         ).group_by(Course.id, User.id
+                                                                    ).filter(Course.id == course_id
+                                                                             ).all()
+    query_labels = ['student_rating', 'max_rating', 's_name', 's_surname', 'course', 'percent', 'r_mark']
+    return list(
+        map(
+            lambda x: dict(
+                zip(
+                    query_labels,
+                    x + (int(x[0] * 1000 / x[1]) / 10, get_reasonable_mark(x[0] * 1000 / x[1])))
+            ),
+            query_result)
+    )
 
 
 class Course(db.Model):

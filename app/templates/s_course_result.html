@@ -7,9 +7,9 @@
     <table align="center" class="student_result">
         {% for record in result %}
             <tr>
-                <td>{{ record[0] }}</td>
-                <td>{{ record[1] }}</td>
-                <td>{{ record[2] }}</td>
+                <td>{{ record['activity_name'] }}</td>
+                <td>{{ record['mark'] }}</td>
+                <td>{{ record['cost'] }}</td>
             </tr>
         {% endfor %}
     </table>
