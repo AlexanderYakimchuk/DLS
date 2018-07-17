@@ -67,22 +67,6 @@ def signup():
                            form=form)
 
 
-# @app.route("/statistic", methods=['GET', 'POST'])
-# def statistic():
-#     if g.user is not None and g.user.is_authenticated:
-#         if g.user.role == 3:
-#             teacher_popularity = DBManager.get_teacher_popularity()
-#             courses_statistic = DBManager.get_courses_statistic()
-#             courses_popularity = DBManager.get_courses_popularity()
-#             return render_template('admin_statistic.html',
-#                                    user=g.user,
-#                                    teacher_popularity=teacher_popularity,
-#                                    courses_statistic=courses_statistic,
-#                                    courses_popularity=courses_popularity)
-#
-#     redirect('/login')
-
-
 @app.route("/courses", methods=['GET', 'POST'])
 @login_required
 def course():
@@ -149,6 +133,7 @@ def add_teacher():
 
 
 @app.route('/courses/<int:course_id>', methods=['GET', 'POST'])
+@login_required
 def concrete_course(course_id):
     if current_user.role == 1:
         return render_template('course.html', user=current_user,

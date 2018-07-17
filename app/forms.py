@@ -86,7 +86,6 @@ class AddUser(Form):
         return True
 
 
-
 class AddTeacher(Form):
     course = QuerySelectField('course', query_factory=get_courses, get_label='course_name', allow_blank=False)
     teacher = QuerySelectField('teacher', query_factory=get_teachers, allow_blank=False)
